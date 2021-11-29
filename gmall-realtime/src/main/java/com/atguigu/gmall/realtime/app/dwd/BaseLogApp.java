@@ -1,10 +1,9 @@
-package com.atguigu.gmall.realtime.app;
+package com.atguigu.gmall.realtime.app.dwd;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.atguigu.gmall.realtime.util.MyKafkaUtil;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.state.ValueState;
@@ -73,7 +72,7 @@ public class BaseLogApp {
             public void open(Configuration parameters) throws Exception {
                 super.open(parameters);
                 lastVisitDateState =
-                        getRuntimeContext().getState(new ValueStateDescriptor<String>(
+                        getRuntimeContext().getState(new ValueStateDescriptor<>(
                                 "lastVisitDateState",
                                 Types.STRING
                         ));
@@ -150,7 +149,9 @@ public class BaseLogApp {
 
 
         //7.将不同流中的数据写到kafka的dwd主题中
-
+        pageDs.addSink(MyKafkaUtil.getKafkaProducer("dwd_page_log"));
+        startDS.addSink(MyKafkaUtil.getKafkaProducer("dwd_start_log"));
+        displayDS.addSink(MyKafkaUtil.getKafkaProducer("dwd_display_log"));
 
 
         env.execute();
